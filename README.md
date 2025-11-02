@@ -1,12 +1,155 @@
-# React + Vite
+Oráculo de la Suerte – Despliegue en Azure App Service (PaaS)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Autor: Elias Poma
+Producción: https://juego-cartas-gafxc8a2avfvbybjj.westus3-01.azurewebsites.net
 
-Currently, two official plugins are available:
+Repositorio: este repo
+Tecnologías: Vite (SPA) + JavaScript/React, Node.js 20 LTS, Azure App Service (Linux)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Juego web tipo “oráculo” donde el usuario baraja y revela cartas siguiendo reglas predefinidas. El objetivo académico es demostrar PaaS + CI/CD con Azure App Service y GitHub Actions, más observabilidad con Application Insights.
 
-## Expanding the ESLint configuration
+1) Requisitos
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Node.js 18+ (usamos 20 LTS en Azure)
+
+npm
+
+Cuenta de GitHub y Azure (con permisos para crear App Service)
+
+2) Ejecutar en local
+# 1) Instalar dependencias
+npm install
+
+# 2) Servir en desarrollo (Vite)
+npm run dev
+# abre http://localhost:5173 (o el puerto que indique Vite)
+
+# 3) Construir artefacto de producción
+npm run build
+
+# 4) Probar build localmente
+npm run preview
+
+3) Entorno en Azure (PaaS)
+
+Servicio: Azure App Service (Linux)
+
+Sistema operativo: Linux
+
+Stack: Node 20 LTS
+
+Región: West US 3
+
+Plan: F1 (Free) – escalable a B1 / P1v3
+
+HTTPS Only: Activado
+
+Application Insights: Habilitado
+
+Comando de inicio (SPA)
+
+Para servir el dist/ como Single Page App:
+
+pm2 serve /home/site/wwwroot --no-daemon --spa
+
+
+Ubicación en el portal: App Service → Configuración → Configuración general → Comando de inicio.
+
+4) CI/CD con GitHub Actions (automático en cada push a main)
+
+Este repo está conectado a Deployment Center del App Service.
+El workflow realiza:
+
+checkout del repo
+
+setup-node (20.x)
+
+npm ci + npm run build
+
+Publica el artefacto dist/ al App Service
+
+Ejemplo de pasos clave del workflow:
+
+- uses: actions/checkout@v4
+
+- name: Use Node 20
+  uses: actions/setup-node@v3
+  with:
+    node-version: '20.x'
+
+- name: Install & build
+  run: |
+    npm ci
+    npm run build
+
+# …login OIDC a Azure y deploy del contenido de ./dist al App Service…
+# with:
+#   app-name: 'JUEGO-CARTAS'
+#   package: 'dist'
+
+
+Dónde verlo:
+
+GitHub → Actions → último run Success
+
+App Service → Centro de implementación → Configuración y Registros
+
+5) Observabilidad y logs
+Application Insights
+
+Métricas: App Service → Application Insights → Métrica (ej. Server requests)
+
+Disponibilidad: Availability test cada 5 min
+
+Consultas (Logs/Kusto):
+
+requests, availabilityResults, pageViews, exceptions, etc.
+
+También exportado a Log Analytics Workspace si está habilitado.
+
+Ejemplos de consultas:
+
+requests | where timestamp > ago(30m) | take 50
+availabilityResults | where timestamp > ago(30m) | take 20
+
+Log stream (en vivo)
+
+App Service → Supervisión → Log stream
+
+Abre el sitio y Ctrl+F5 para ver líneas GET … 200
+
+6) Escalabilidad
+
+App Service → Plan de App Service → Escalar verticalmente (Scale up)
+
+Se puede subir de F1 a B1/P1v3 para más CPU/RAM y características.
+
+7) Pasos de despliegue (resumen)
+
+Crear App Service (Linux, Node 20 LTS) en la región deseada.
+
+Deployment Center → conectar GitHub (repo y rama main).
+
+Configurar:
+
+HTTPS Only: Activado
+
+Comando de inicio SPA: pm2 serve /home/site/wwwroot --no-daemon --spa
+
+Application Insights: Habilitar y (opcional) configurar Availability.
+
+Hacer push a main → Actions compila y publica automáticamente.
+
+Validar visitando https://<app>.azurewebsites.net.
+
+8) Solución de problemas
+
+Página “esperando contenido”:
+Asegúrate de que el workflow publique dist/ y que el comando de inicio sea el de arriba.
+
+404 en rutas del SPA:
+Confirma --spa en el startup command.
+
+Log stream vacío:
+Activa en Supervisión → Configuración de diagnóstico:
+“Registros del servidor web (HTTP)” y “Registros de aplicación (Filesystem)”.
