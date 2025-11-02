@@ -1,65 +1,61 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy Node.js app to Azure Web App - JUEGO-CARTAS
+# Build & Deploy Vite (SPA) to Azure Web App - JUEGO-CARTAS (OIDC)
+name: Build and deploy Vite app to Azure Web App - JUEGO-CARTAS
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Node.js version
-        uses: actions/setup-node@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '20'     # si tu App Service está en Node 22, pon '22'
+          cache: 'npm'
 
-      - name: npm install, build, and test
+      - name: Install deps & build (Vite)
         run: |
-          npm install
-          npm run build --if-present
-          npm run test --if-present
+          npm ci
+          npm run build          # genera ./dist
 
-      - name: Upload artifact for deployment job
+      - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: node-app
-          path: .
+          name: dist
+          path: dist
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
-      - name: Download artifact from build job
+      - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: node-app
-      
-      - name: Login to Azure
+          name: dist
+          path: dist
+
+      - name: Azure login (OIDC)
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_8F3A7DC6B279494F88C3FD5032D6228A }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_F9ACF305FBAC45C3BD998ED86C010B2C }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_B00CFD91FA214E8CAC4F72CF9770A194 }}
 
-      - name: 'Deploy to Azure Web App'
-        id: deploy-to-webapp
+      - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'JUEGO-CARTAS'
           slot-name: 'Production'
-          package: .
-          
+          package: 'dist'        # << publica SOLO la carpeta compilada
