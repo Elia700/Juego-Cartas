@@ -11,26 +11,12 @@ Juego web tipo “oráculo” donde el usuario baraja y revela cartas siguiendo 
 1) Requisitos
 
 Node.js 18+ (usamos 20 LTS en Azure)
-
 npm
 
 Cuenta de GitHub y Azure (con permisos para crear App Service)
 
-2) Ejecutar en local
-# 1) Instalar dependencias
-npm install
 
-# 2) Servir en desarrollo (Vite)
-npm run dev
-# abre http://localhost:5173 (o el puerto que indique Vite)
-
-# 3) Construir artefacto de producción
-npm run build
-
-# 4) Probar build localmente
-npm run preview
-
-3) Entorno en Azure (PaaS)
+2) Entorno en Azure (PaaS)
 
 Servicio: Azure App Service (Linux)
 
@@ -55,7 +41,7 @@ pm2 serve /home/site/wwwroot --no-daemon --spa
 
 Ubicación en el portal: App Service → Configuración → Configuración general → Comando de inicio.
 
-4) CI/CD con GitHub Actions (automático en cada push a main)
+3) CI/CD con GitHub Actions (automático en cada push a main)
 
 Este repo está conectado a Deployment Center del App Service.
 El workflow realiza:
@@ -94,7 +80,7 @@ GitHub → Actions → último run Success
 
 App Service → Centro de implementación → Configuración y Registros
 
-5) Observabilidad y logs
+4) Observabilidad y logs
 Application Insights
 
 Métricas: App Service → Application Insights → Métrica (ej. Server requests)
@@ -118,13 +104,13 @@ App Service → Supervisión → Log stream
 
 Abre el sitio y Ctrl+F5 para ver líneas GET … 200
 
-6) Escalabilidad
+5) Escalabilidad
 
 App Service → Plan de App Service → Escalar verticalmente (Scale up)
 
 Se puede subir de F1 a B1/P1v3 para más CPU/RAM y características.
 
-7) Pasos de despliegue (resumen)
+6) Pasos de despliegue (resumen)
 
 Crear App Service (Linux, Node 20 LTS) en la región deseada.
 
@@ -142,7 +128,7 @@ Hacer push a main → Actions compila y publica automáticamente.
 
 Validar visitando https://<app>.azurewebsites.net.
 
-8) Solución de problemas
+7) Solución de problemas
 
 Página “esperando contenido”:
 Asegúrate de que el workflow publique dist/ y que el comando de inicio sea el de arriba.
