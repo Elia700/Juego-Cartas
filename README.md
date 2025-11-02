@@ -1,7 +1,7 @@
 Oráculo de la Suerte – Despliegue en Azure App Service (PaaS)
 
 Autor: Elias Poma
-Producción: https://juego-cartas-gafxc8a2avfvbybjj.westus3-01.azurewebsites.net
+Producción: https://juego-cartas-gafxc8a2avfwbybj.westus3-01.azurewebsites.net/
 
 Repositorio: este repo
 Tecnologías: Vite (SPA) + JavaScript/React, Node.js 20 LTS, Azure App Service (Linux)
