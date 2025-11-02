@@ -30,14 +30,14 @@ TLS/SSL → Solo HTTPS: Activado.
 
 Configuración → Configuración general
 
-Versión de Node principal: 20
+Versión principal de Node: 20
 
 Comando de inicio (SPA):
 
 pm2 serve /home/site/wwwroot --no-daemon --spa
 
 
-Guardar y Reiniciar si fue necesario.
+Guardar y Reiniciar si es necesario.
 
 3) CI/CD con GitHub Actions (Deployment Center)
 
@@ -47,9 +47,9 @@ Origen: GitHub → seleccionar cuenta, repo y rama main.
 
 Elegir “Agregar un flujo de trabajo” (Actions) y confirmar.
 
-Se crea un workflow que:
+El workflow generado:
 
-hace checkout,
+hace checkout del repo,
 
 usa Node 20,
 
@@ -57,23 +57,24 @@ ejecuta npm ci && npm run build,
 
 publica el contenido de dist/ en el App Service.
 
-Verificar el run en GitHub → Actions (Success) y en Centro de implementación → Registros (Succeeded).
+Verificar:
+
+GitHub → Actions: último run Success.
+
+Centro de implementación → Registros: última implementación Succeeded.
 
 4) Validación en producción
 
-Abrir https://<tu-app>.azurewebsites.net (en este caso la URL de arriba).
-
-Verificar que el juego carga y responde.
+Abrir la URL de producción y comprobar que el juego carga y responde.
 
 5) Observabilidad
-
 Application Insights
 
 En la Web App → Application Insights → Habilitar (misma región).
 
-(Opcional) Disponibilidad: crear “Prueba estándar” GET cada 5 min a la URL del sitio.
+(Opcional) Disponibilidad: crear Prueba estándar (GET) cada 5 min a la URL del sitio.
 
-Métricas/Registros: consultar Server requests, availability, etc.
+Métricas/Registros: consultar Server requests, Availability, etc.
 
 Log stream (evidencia de tráfico)
 
@@ -83,12 +84,30 @@ Si no hay datos: Supervisión → Configuración de diagnóstico
 
 Activar Registros del servidor web (HTTP) y Registros de aplicación (Filesystem) → Guardar.
 
-Volver a Log stream, recargar el sitio (Ctrl+F5) y ver líneas GET … 200.
+Volver a Log stream, recargar el sitio (Ctrl+F5) y observar líneas GET … 200.
 
 6) Escalabilidad (mostrar capacidad)
 
 Web App → Plan de App Service → Escalar verticalmente (Scale up).
 
-(Solo evidencia) Mostrar que se puede subir de F1 a B1/P1v3 sin cambiar realmente.
+Solo como evidencia, mostrar que se puede subir de F1 a B1/P1v3 (sin cambiar realmente).
 
+7) Checklist de verificación
 
+ Web App Linux + Node 20 LTS creada y en ejecución
+
+ HTTPS Only activado
+
+ Startup command pm2 … --spa configurado
+
+ Deployment Center conectado a GitHub (main)
+
+ Actions con último run Success y Registros en Succeeded
+
+ Sitio funcional en *.azurewebsites.net
+
+ Application Insights habilitado (métricas / disponibilidad)
+
+ Log stream con líneas GET … 200
+
+ Scale up visible (capacidad de escalar)
