@@ -1,141 +1,112 @@
-Oráculo de la Suerte – Despliegue en Azure App Service (PaaS)
+Despliegue en Azure App Service (PaaS) – Oráculo de la Suerte
 
-Autor: Elias Poma
-Producción: https://juego-cartas-gafxc8a2avfwbybj.westus3-01.azurewebsites.net/
+URL de producción: https://juego-cartas-gafxc8a2avfvbybjj.westus3-01.azurewebsites.net
 
-Repositorio: este repo
-Tecnologías: Vite (SPA) + JavaScript/React, Node.js 20 LTS, Azure App Service (Linux)
+Servicio: Azure App Service (Linux) · Stack: Node 20 LTS · Región: West US 3 · Plan: F1 (Free)
 
-Juego web tipo “oráculo” donde el usuario baraja y revela cartas siguiendo reglas predefinidas. El objetivo académico es demostrar PaaS + CI/CD con Azure App Service y GitHub Actions, más observabilidad con Application Insights.
+1) Creación del App Service (Portal Azure)
 
-1) Requisitos
+Crear recurso → Web App (App Services).
 
-Node.js 18+ (usamos 20 LTS en Azure)
-npm
+Datos básicos
 
-Cuenta de GitHub y Azure (con permisos para crear App Service)
+Nombre: JUEGO-CARTAS
 
-
-2) Entorno en Azure (PaaS)
-
-Servicio: Azure App Service (Linux)
+Publicar: Código
 
 Sistema operativo: Linux
 
-Stack: Node 20 LTS
+Pila de tiempo de ejecución: Node 20 LTS
 
 Región: West US 3
 
-Plan: F1 (Free) – escalable a B1 / P1v3
+Plan de App Service: crear uno nuevo (F1/Gratis para pruebas)
 
-HTTPS Only: Activado
+Revisar y crear → Crear.
 
-Application Insights: Habilitado
+2) Configuración obligatoria de la Web App
 
-Comando de inicio (SPA)
+TLS/SSL → Solo HTTPS: Activado.
 
-Para servir el dist/ como Single Page App:
+Configuración → Configuración general
+
+Versión de Node principal: 20
+
+Comando de inicio (SPA):
 
 pm2 serve /home/site/wwwroot --no-daemon --spa
 
 
-Ubicación en el portal: App Service → Configuración → Configuración general → Comando de inicio.
+Guardar y Reiniciar si fue necesario.
 
-3) CI/CD con GitHub Actions (automático en cada push a main)
+3) CI/CD con GitHub Actions (Deployment Center)
 
-Este repo está conectado a Deployment Center del App Service.
-El workflow realiza:
+En la Web App: Centro de implementación → Configuración.
 
-checkout del repo
+Origen: GitHub → seleccionar cuenta, repo y rama main.
 
-setup-node (20.x)
+Elegir “Agregar un flujo de trabajo” (Actions) y confirmar.
 
-npm ci + npm run build
+Se crea un workflow que:
 
-Publica el artefacto dist/ al App Service
+hace checkout,
 
-Ejemplo de pasos clave del workflow:
+usa Node 20,
 
-- uses: actions/checkout@v4
+ejecuta npm ci && npm run build,
 
-- name: Use Node 20
-  uses: actions/setup-node@v3
-  with:
-    node-version: '20.x'
+publica el contenido de dist/ en el App Service.
 
-- name: Install & build
-  run: |
-    npm ci
-    npm run build
+Verificar el run en GitHub → Actions (Success) y en Centro de implementación → Registros (Succeeded).
 
-# …login OIDC a Azure y deploy del contenido de ./dist al App Service…
-# with:
-#   app-name: 'JUEGO-CARTAS'
-#   package: 'dist'
+4) Validación en producción
 
+Abrir https://<tu-app>.azurewebsites.net (en este caso la URL de arriba).
 
-Dónde verlo:
+Verificar que el juego carga y responde.
 
-GitHub → Actions → último run Success
+5) Observabilidad
 
-App Service → Centro de implementación → Configuración y Registros
-
-4) Observabilidad y logs
 Application Insights
 
-Métricas: App Service → Application Insights → Métrica (ej. Server requests)
+En la Web App → Application Insights → Habilitar (misma región).
 
-Disponibilidad: Availability test cada 5 min
+(Opcional) Disponibilidad: crear “Prueba estándar” GET cada 5 min a la URL del sitio.
 
-Consultas (Logs/Kusto):
+Métricas/Registros: consultar Server requests, availability, etc.
 
-requests, availabilityResults, pageViews, exceptions, etc.
+Log stream (evidencia de tráfico)
 
-También exportado a Log Analytics Workspace si está habilitado.
+Web App → Supervisión → Log stream.
 
-Ejemplos de consultas:
+Si no hay datos: Supervisión → Configuración de diagnóstico
 
-requests | where timestamp > ago(30m) | take 50
-availabilityResults | where timestamp > ago(30m) | take 20
+Activar Registros del servidor web (HTTP) y Registros de aplicación (Filesystem) → Guardar.
 
-Log stream (en vivo)
+Volver a Log stream, recargar el sitio (Ctrl+F5) y ver líneas GET … 200.
 
-App Service → Supervisión → Log stream
+6) Escalabilidad (mostrar capacidad)
 
-Abre el sitio y Ctrl+F5 para ver líneas GET … 200
+Web App → Plan de App Service → Escalar verticalmente (Scale up).
 
-5) Escalabilidad
+(Solo evidencia) Mostrar que se puede subir de F1 a B1/P1v3 sin cambiar realmente.
 
-App Service → Plan de App Service → Escalar verticalmente (Scale up)
+7) Checklist de verificación
 
-Se puede subir de F1 a B1/P1v3 para más CPU/RAM y características.
+ Web App Linux + Node 20 LTS creada y En ejecución.
 
-6) Pasos de despliegue (resumen)
+ HTTPS Only activado.
 
-Crear App Service (Linux, Node 20 LTS) en la región deseada.
+ Startup command pm2 … --spa configurado.
 
-Deployment Center → conectar GitHub (repo y rama main).
+ Deployment Center conectado a GitHub (main).
 
-Configurar:
+ Actions último run Success y Registros en Succeeded.
 
-HTTPS Only: Activado
+ Sitio funcional en *.azurewebsites.net.
 
-Comando de inicio SPA: pm2 serve /home/site/wwwroot --no-daemon --spa
+ Application Insights habilitado (métricas / disponibilidad).
 
-Application Insights: Habilitar y (opcional) configurar Availability.
+ Log stream con líneas GET … 200.
 
-Hacer push a main → Actions compila y publica automáticamente.
-
-Validar visitando https://<app>.azurewebsites.net.
-
-7) Solución de problemas
-
-Página “esperando contenido”:
-Asegúrate de que el workflow publique dist/ y que el comando de inicio sea el de arriba.
-
-404 en rutas del SPA:
-Confirma --spa en el startup command.
-
-Log stream vacío:
-Activa en Supervisión → Configuración de diagnóstico:
-“Registros del servidor web (HTTP)” y “Registros de aplicación (Filesystem)”.
+ Scale up mostrado (captura).
