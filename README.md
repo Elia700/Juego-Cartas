@@ -1,14 +1,27 @@
 Despliegue en Azure App Service (PaaS) – Oráculo de la Suerte
 
-URL de producción: https://juego-cartas-gafxc8a2avfwbybj.westus3-01.azurewebsites.net/
+URL de producción:
+https://juego-cartas-gafxc8a2avfwbybj.westus3-01.azurewebsites.net/
 
-Servicio: Azure App Service (Linux) · Stack: Node 20 LTS · Región: West US 3 · Plan: F1 (Free)
+Entorno de ejecución (resumen)
 
-1) Creación del App Service (Portal Azure)
+Servicio: Azure App Service (Linux)
+
+Stack: Node 20 LTS
+
+Región: West US 3
+
+Plan: F1 (Free)
+
+Tipo de app: SPA (Vite)
+
+Arranque: pm2 serve /home/site/wwwroot --no-daemon --spa
+
+1. Creación del App Service (Portal Azure)
 
 Crear recurso → Web App (App Services).
 
-Datos básicos
+Completar Datos básicos:
 
 Nombre: JUEGO-CARTAS
 
@@ -24,7 +37,7 @@ Plan de App Service: crear uno nuevo (F1/Gratis para pruebas)
 
 Revisar y crear → Crear.
 
-2) Configuración obligatoria de la Web App
+2. Configuración obligatoria de la Web App
 
 TLS/SSL → Solo HTTPS: Activado.
 
@@ -37,48 +50,48 @@ Comando de inicio (SPA):
 pm2 serve /home/site/wwwroot --no-daemon --spa
 
 
-Guardar y Reiniciar si es necesario.
+Guardar y Reiniciar si fue necesario.
 
-3) CI/CD con GitHub Actions (Deployment Center)
+3. CI/CD con GitHub Actions (Deployment Center)
 
 En la Web App: Centro de implementación → Configuración.
 
-Origen: GitHub → seleccionar cuenta, repo y rama main.
+Origen: GitHub → seleccionar cuenta, repositorio y rama main.
 
-Elegir “Agregar un flujo de trabajo” (Actions) y confirmar.
+Opción: Agregar un flujo de trabajo (Actions) y confirmar.
 
 El workflow generado:
 
-hace checkout del repo,
+Hace checkout del repo.
 
-usa Node 20,
+Usa Node 20.
 
-ejecuta npm ci && npm run build,
+Ejecuta npm ci && npm run build.
 
-publica el contenido de dist/ en el App Service.
+Publica el contenido de dist/ en el App Service.
 
-Verificar:
+Verificación:
 
 GitHub → Actions: último run Success.
 
-Centro de implementación → Registros: última implementación Succeeded.
+App Service → Centro de implementación → Registros: última implementación Succeeded.
 
-4) Validación en producción
+4. Validación en producción
 
-Abrir la URL de producción y comprobar que el juego carga y responde.
+Abrir la URL de producción y comprobar que el juego carga y responde correctamente.
 
-5) Observabilidad
-Application Insights
+5. Observabilidad
+5.1 Application Insights
 
-En la Web App → Application Insights → Habilitar (misma región).
+App Service → Application Insights → Habilitar (misma región que la app).
 
-(Opcional) Disponibilidad: crear Prueba estándar (GET) cada 5 min a la URL del sitio.
+Métricas/Registros: consultar Server requests, disponibilidad, trazas, etc.
 
-Métricas/Registros: consultar Server requests, Availability, etc.
+(Opcional) Disponibilidad: crear una Prueba estándar (GET) cada 5 minutos a la URL del sitio.
 
-Log stream (evidencia de tráfico)
+5.2 Log stream (tráfico en vivo)
 
-Web App → Supervisión → Log stream.
+App Service → Supervisión → Log stream.
 
 Si no hay datos: Supervisión → Configuración de diagnóstico
 
@@ -86,28 +99,28 @@ Activar Registros del servidor web (HTTP) y Registros de aplicación (Filesystem
 
 Volver a Log stream, recargar el sitio (Ctrl+F5) y observar líneas GET … 200.
 
-6) Escalabilidad (mostrar capacidad)
+6. Escalabilidad (evidencia)
 
-Web App → Plan de App Service → Escalar verticalmente (Scale up).
+App Service → Plan de App Service → Escalar verticalmente (Scale up).
 
-Solo como evidencia, mostrar que se puede subir de F1 a B1/P1v3 (sin cambiar realmente).
+Mostrar que se puede escalar de F1 a B1/P1v3 (sin necesidad de cambiar el plan para la práctica).
 
-7) Checklist de verificación
+7. Checklist de verificación
 
- Web App Linux + Node 20 LTS creada y en ejecución
+ Web App Linux + Node 20 LTS creada y en ejecución.
 
- HTTPS Only activado
+ HTTPS Only activado.
 
- Startup command pm2 … --spa configurado
+ Startup command configurado: pm2 … --spa.
 
- Deployment Center conectado a GitHub (main)
+ Deployment Center conectado a GitHub (rama main).
 
- Actions con último run Success y Registros en Succeeded
+ Actions: último run Success y Registros en Succeeded.
 
- Sitio funcional en *.azurewebsites.net
+ Sitio funcional en *.azurewebsites.net.
 
- Application Insights habilitado (métricas / disponibilidad)
+ Application Insights habilitado (métricas / disponibilidad).
 
- Log stream con líneas GET … 200
+ Log stream con líneas GET … 200.
 
- Scale up visible (capacidad de escalar)
+ Scale up visible (capacidad de escalar).
