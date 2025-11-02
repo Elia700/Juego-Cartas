@@ -1,6 +1,6 @@
 Despliegue en Azure App Service (PaaS) – Oráculo de la Suerte
 
-URL de producción: https://juego-cartas-gafxc8a2avfvbybjj.westus3-01.azurewebsites.net
+URL de producción: https://juego-cartas-gafxc8a2avfwbybj.westus3-01.azurewebsites.net/
 
 Servicio: Azure App Service (Linux) · Stack: Node 20 LTS · Región: West US 3 · Plan: F1 (Free)
 
@@ -91,22 +91,4 @@ Web App → Plan de App Service → Escalar verticalmente (Scale up).
 
 (Solo evidencia) Mostrar que se puede subir de F1 a B1/P1v3 sin cambiar realmente.
 
-7) Checklist de verificación
 
- Web App Linux + Node 20 LTS creada y En ejecución.
-
- HTTPS Only activado.
-
- Startup command pm2 … --spa configurado.
-
- Deployment Center conectado a GitHub (main).
-
- Actions último run Success y Registros en Succeeded.
-
- Sitio funcional en *.azurewebsites.net.
-
- Application Insights habilitado (métricas / disponibilidad).
-
- Log stream con líneas GET … 200.
-
- Scale up mostrado (captura).
