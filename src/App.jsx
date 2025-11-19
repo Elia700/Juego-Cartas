@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ShuffleAnimation from './ShuffleAnimation';
+import InstallPWAButton from './InstallPWAButton';
 
 const App = () => {
   // Estados principales del juego
@@ -501,6 +502,11 @@ const App = () => {
           }}>
             Oráculo de la Suerte
           </h1>
+
+          {/* Botón reutilizable para ofrecer la instalación como PWA cuando el navegador lo permita */}
+          <div style={{ alignSelf: 'flex-start' }}>
+            <InstallPWAButton />
+          </div>
           
           <div>
             <input 
