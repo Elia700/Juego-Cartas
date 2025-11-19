@@ -254,6 +254,26 @@ body {
     inset 0 1px 0 rgba(255,255,255,0.4);
 }
 
+/* Botón persistente para instalar la PWA */
+.install-btn {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #fff;
+  background: linear-gradient(145deg, #ff7eb3, #ff5d8f);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.install-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.25);
+}
+
 .card.empty {
   background: linear-gradient(145deg, #d32f2f, #ef5350);
   cursor: not-allowed;

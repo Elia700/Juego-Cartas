@@ -1,34 +1,20 @@
 import { useEffect, useState } from 'react';
 
-const installButtonStyles = {
-  padding: '10px 18px',
-  borderRadius: '999px',
-  border: 'none',
-  background: 'linear-gradient(145deg, #ff7eb3, #ff758c)',
-  color: '#fff',
-  fontWeight: 'bold',
-  cursor: 'pointer',
-  boxShadow: '0 6px 15px rgba(0,0,0,0.2)',
-  alignSelf: 'flex-start'
-};
-
 const InstallPWAButton = () => {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // Captura el evento antes de que el navegador muestre su prompt nativo.
+    // Guarda el evento para lanzarlo manualmente más adelante.
     const handleBeforeInstallPrompt = (event) => {
       event.preventDefault();
       setDeferredPrompt(event);
-      setIsVisible(true);
+      console.log('[PWA] Evento beforeinstallprompt capturado');
     };
 
-    // Oculta el botón si la app ya se instaló o si el usuario la instala desde el prompt.
+    // Limpia el estado si la app se instaló fuera del botón.
     const handleAppInstalled = () => {
       setDeferredPrompt(null);
-      setIsVisible(false);
-      console.log('[PWA] Aplicación instalada');
+      console.log('[PWA] Aplicación instalada desde el navegador');
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -40,30 +26,39 @@ const InstallPWAButton = () => {
     };
   }, []);
 
+  const showManualInstallInstructions = () => {
+    alert(
+      [
+        'Si ya instalaste la app, búscala en tu escritorio o menú de aplicaciones.',
+        '',
+        'Si aún no la instalaste:',
+        '- En PC/Android: abre el menú del navegador y elige "Instalar app" o "Añadir a pantalla de inicio".',
+        '- En iPhone: usa el botón Compartir y luego "Añadir a pantalla de inicio".'
+      ].join('\n')
+    );
+  };
+
   const handleInstallClick = async () => {
-    if (!deferredPrompt) return;
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
 
-    // Muestra el prompt custom del navegador.
-    deferredPrompt.prompt();
-
-    try {
-      const { outcome } = await deferredPrompt.userChoice;
-      console.log(`[PWA] Resultado del prompt: ${outcome}`);
-    } catch (error) {
-      console.error('[PWA] Error al solicitar la instalación', error);
-    } finally {
-      setDeferredPrompt(null);
-      setIsVisible(false);
+      try {
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`[PWA] Resultado del prompt: ${outcome}`);
+      } catch (error) {
+        console.error('[PWA] Error al lanzar el prompt de instalación', error);
+      } finally {
+        setDeferredPrompt(null);
+      }
+    } else {
+      // Fallback con instrucciones claras para instalar manualmente.
+      showManualInstallInstructions();
     }
   };
 
-  if (!isVisible || !deferredPrompt) {
-    return null;
-  }
-
   return (
-    <button type="button" onClick={handleInstallClick} className="pwa-install-btn" style={installButtonStyles}>
-      Instalar app
+    <button type="button" onClick={handleInstallClick} className="install-btn">
+      📲 Instalar app
     </button>
   );
 };
