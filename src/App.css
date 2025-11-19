@@ -263,6 +263,7 @@ body {
   font-size: 1rem;
   font-weight: bold;
   color: #fff;
+  text-align: center;
   background: linear-gradient(145deg, #ff7eb3, #ff5d8f);
   box-shadow: 0 6px 15px rgba(0,0,0,0.2);
   cursor: pointer;
