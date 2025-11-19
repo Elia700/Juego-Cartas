@@ -1,4 +1,4 @@
-Despliegue en Azure App Service (PaaS) – Oráculo de la Suerte
+TEST LINE
 
 URL de producción:
 https://juego-cartas-gafxc8a2avfwbybj.westus3-01.azurewebsites.net/
